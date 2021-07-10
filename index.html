@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="./style.css" rel="stylesheet">
+
+</head>
+<body>
+  <div id="wrap_input">
+    <p>
+      1.テキストボックスに原文を入力
+    </p>
+    <p>
+      2.編集開始を押す
+    </p>
+    <textarea id=initialInput cols="80" rows="10"></textarea>
+    <p>
+      <button onclick="toEditMode()">編集開始</button>
+    </p>
+  </div>
+  <div id="wrap_editting">
+    <!-- 原文 --> 
+    <div id="leftside">
+      <div id = "srcside">
+        <p>
+          原文（１文ごと）
+        </p>
+
+        <div onscroll="handleScroll(this.id)" id = "srcbox" class="box">
+          ここに原文テキストテキストテキストテキストテキストテキストテキストテキストテキストテキス  トテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキス  トテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキス  トテキストテキストテキストテキストテキストテキストテキストテキストテキストテキスト
+        </div>
+        
+      </div>
+
+      <!-- 訳文 -->
+      <div id = "tgtside">
+        <p>
+          訳文（１文ごと）
+          <button onclick=moveLine(-1)>←</button>
+          <span id=lineIndex></span>
+          <button onclick=moveLine(1)>→</button>
+          <button onclick="resetSelect()">選択解除(Esc)</button>
+
+          <!-- <button onclick=h() >srcstrct</button> -->
+        </p>
+        <div onscroll="handleScroll(this.id)" id = "tgtbox" class=box>
+          ここに訳文テキストテキストテキストテキストテキストテキストテキストテキストテキストテキス  トテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキス  トテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキス  トテキストテキストテキストテキストテキストテキストテキストテキストテキストテキスト
+        </div>
+        <!-- <div id=trnsphrase>
+          変換後語句
+        </div> -->
+        <input type="text" size="10" id=srcphrase class=phrase disabled placeholder="変換前語句">
+        →
+        <input type="text" size="10" oninput="setDropdownContents()" id=trnsphrase class=phrase disabled  placeholder="変換後語句">
+        <!-- <input type="button" value="適用" onclick="apply()"/>
+        <input type="button" value="無視" onclick="ignore()"/> -->
+        <div class="dropdown">
+          <button id="actionbtn" class="dropbtn"></button>
+          <button onclick="toggleDropdown()" id="vbtn" class="dropbtn">▼</button>
+          <div id="myDropdown" class="dropdown-content">
+          </div>
+        </div>  
+      </div>
+    </div>
+    <div id="translationSide">
+      <p>
+        訳文（全体）
+      </p>
+      <div id="translationText"></div>
+      <div class="output">
+        <button onclick=g() >出力</button>
+        <span id=popup>クリップボード</span>
+      </div>
+      <button id="quitbtn" onclick="toInputMode()">終了</button>
+    </div>
+  </div>
+  <script type="text/javascript" src="./script.js"></script>
+  <script type="text/javascript" src="./linkHTML.js"></script>
+  <script type="text/javascript" src="./database.js"></script>
+  <script type="text/javascript" src="./scroller.js"></script>
+  <script language="javascript" type="text/javascript">
+    function g(){
+      let o = output();
+      console.log(o);
+      if(navigator.clipboard){
+        navigator.clipboard.writeText(o);
+        popup.innerText = "クリップボードにコピー";
+      }
+      else{
+        // console.log("clipboard API failed.");
+        popup.innerText = "Consoleに出力";
+      }
+      popup.animate(
+        [
+          {opacity:1},
+          {opacity:1},
+          {opacity:0}
+        ],
+        {
+          duration: 700,
+          fill: "forwards"
+        }
+      );
+    };
+
+    function h(){
+      console.log(getSrc());
+    }
+
+    function toEditMode(){
+      if(initialInput.value == ""){
+        return;
+      }
+      wrap_input.style.display = "none";
+      wrap_editting.style.display = "block";
+      init(initialInput.value);
+      resetSelect();
+      setDropdownContents();
+    }
+
+    function toInputMode(){
+      g();
+      wrap_input.style.display = "block";
+      wrap_editting.style.display = "none";
+      initialInput.value = "";
+    }
+
+    
+    // Close the dropdown menu if the user clicks outside of it
+    window.onclick = function(event) {
+      if (!event.target.matches('.dropbtn')) {
+        let dd = document.getElementById("myDropdown");
+        if(dd.classList.contains("show"))
+          dd.classList.remove("show");
+      }
+    };
+
+    document.addEventListener("keydown", event =>{
+      if(event.code == "Escape"){
+        resetSelect();
+      }
+      // else if(event.code == "ArrowLeft"){
+      //   moveLine(-1);
+      // }
+      // else if(event.code == "ArrowRight"){
+      //   moveLine(1);
+      // }
+    })
+
+    initDict();
+    initEvent();
+  </script>
+</body>
+</html>
